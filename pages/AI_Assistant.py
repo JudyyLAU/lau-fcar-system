@@ -4,7 +4,7 @@ import streamlit as st
 from openai import OpenAI
 from utils import get_fcar, ai_summarize_fcar,logo,add_sidebar_logo,inject_custom_css
 inject_custom_css()
-st.set_page_config(page_title="AI Assistant", page_icon=str(logo), layout="wide")
+# st.set_page_config(page_title="AI Assistant", page_icon=str(logo), layout="wide")
 add_sidebar_logo()
 st.markdown("<h1 style='color:#046d5a;'>Ask AI</h1>", unsafe_allow_html=True)
 # st.title("Ask AI")

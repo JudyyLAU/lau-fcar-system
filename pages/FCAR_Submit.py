@@ -79,7 +79,7 @@ st.sidebar.markdown(f"👤 **User:** {st.session_state.get('user')} ({st.session
 
 # ---- Page setup ----
 inject_custom_css()
-st.set_page_config(page_title="FCAR", page_icon=str(logo), layout="wide")
+# st.set_page_config(page_title="FCAR", page_icon=str(logo), layout="wide")
 st.markdown("<h1 style='color:#046d5a;'>Submit / Edit FCAR</h1>", unsafe_allow_html=True)
 st.caption("Upload a previous FCAR to auto-fill, or enter data manually. Supports dynamic SLO/PC rows.")
 

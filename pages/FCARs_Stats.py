@@ -67,7 +67,7 @@ st.sidebar.markdown(f"👤 **User:** {st.session_state.get('user')} ({st.session
 
 # ---- Page setup ----
 inject_custom_css()
-st.set_page_config(page_title="FCAR Dashboard", page_icon=str(logo), layout="wide")
+# st.set_page_config(page_title="FCAR Dashboard", page_icon=str(logo), layout="wide")
 st.markdown("<h1 style='color:#046d5a;'>FCAR Dashboard</h1>", unsafe_allow_html=True)
 st.caption("Explore submitted FCARs by department, course, term, and SLO/PC performance.")
 
