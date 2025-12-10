@@ -4,9 +4,10 @@ import pandas as pd
 from utils import summarize_fcar, get_departments,add_sidebar_logo,logo,get_dept_profile,inject_custom_css
 from pathlib import Path
 
+st.set_page_config(page_title="Assessment Hub ", page_icon=str(logo), layout="wide")
+
 inject_custom_css()
 
-st.set_page_config(page_title="Assessment Hub ", page_icon=str(logo), layout="wide")
 # st.image("/Users/judy.matar/Desktop/assessment_hub/data/lau-logo copy.jpg", width=200)
 add_sidebar_logo()
 st.markdown("<h1 style='color:#046d5a;'>Assessment Hub</h1>", unsafe_allow_html=True)
