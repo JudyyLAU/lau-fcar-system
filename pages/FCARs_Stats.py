@@ -78,7 +78,7 @@ GRADE_LABELS = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F", "W"
 @st.cache_data(show_spinner=False)
 def load_fcar_headers():
     db = get_db("fcar_db")
-    if not db:
+    if db is None: 
         return pd.DataFrame()
     rows = list(db.fcar_headers.find({}))
     if not rows:

@@ -744,7 +744,8 @@ with st.form("fcar_form"):
     edited_live = st.data_editor(
         pcs_df,
         num_rows="dynamic",
-        width="content",
+        use_container_width=True, 
+        # width="content",
         disabled=(left_col_name,),  # circle column is read-only
         column_config={
             left_col_name: st.column_config.TextColumn("", help="Auto status"),
@@ -921,6 +922,6 @@ with st.form("fcar_form"):
                     "• PCs collection: fcar_pcs"
                 )
                 # Show the inserted header for confirmation
-                st.dataframe(pd.DataFrame([header_row]), width="content")
+                st.dataframe(pd.DataFrame([header_row]), use_container_width=True)
         except Exception as e:
             st.error(f"MongoDB save failed: {e}")
