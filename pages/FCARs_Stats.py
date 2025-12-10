@@ -55,8 +55,8 @@ import streamlit as st
 from pathlib import Path
 
 # Reuse helpers from your submit page / utils
-from utils import inject_custom_css, logo, pct_to_dot
-from pages.FCAR_submit import get_db  # <-- change to your actual module name
+from utils import inject_custom_css, logo, pct_to_dot,get_db,ensure_indexes
+
 # login guard
 if "user" not in st.session_state:
     st.error("You must be logged in to access this page. Please go to the Home page and log in.")

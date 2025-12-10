@@ -1,6 +1,7 @@
 
 import pandas as pd
 import streamlit as st
+import os 
 from pathlib import Path
 DATA_DIR = Path(__file__).parent / "data"
 logo = Path(__file__).parent / "data" / "lau-logo.jpg"
@@ -8,7 +9,7 @@ logo = Path(__file__).parent / "data" / "lau-logo.jpg"
 def add_sidebar_logo():
     logowhite = Path(__file__).parent / "data" / "lau-white-nobc.png"
     with st.sidebar:
-        st.image(str(logowhite), width='stretch')
+        st.image(str(logowhite), width=200)
 
 
 def add_page_logo():
@@ -194,3 +195,42 @@ def pct_to_dot(p):
         return "🟡"
     else:
         return "🔴"
+# Import for mongodb
+def lazy_import_pymongo():
+    try:
+        import pymongo  # noqa: F401
+        from pymongo import MongoClient, ASCENDING
+        return pymongo, MongoClient, ASCENDING
+    except Exception:
+        st.error("Missing dependency `pymongo`. Install it: `pip install pymongo`")
+        raise
+
+
+def get_mongo_client():
+    _, MongoClient, _ = lazy_import_pymongo()
+    uri = os.getenv("MONGODB_URI") or st.secrets.get("MONGODB_URI", "")
+    if not uri:
+        st.error("MONGODB_URI not set (env or st.secrets).")
+        return None
+    try:
+        return MongoClient(uri, serverSelectionTimeoutMS=5000)
+    except Exception as e:
+        st.error(f"Mongo connection failed: {e}")
+        return None
+
+
+def get_db(db_name: str = "fcar_db"):
+    client = get_mongo_client()
+    return client[db_name] if client else None
+
+
+def ensure_indexes(db):
+    # Unique FCAR id on headers; not unique on pcs since multiple rows per fcar
+    _, _, ASCENDING = lazy_import_pymongo()
+    db.fcar_headers.create_index([("fcar_id", ASCENDING)], unique=True)
+    db.fcar_pcs.create_index([("fcar_id", ASCENDING)], unique=False)
+    # Optional: text index for quick search
+    db.fcar_headers.create_index(
+        [("course_code_title", "text"), ("instructor_name", "text")],
+        name="hdr_text_idx",
+    )
