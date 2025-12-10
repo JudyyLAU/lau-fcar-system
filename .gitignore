@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+.venv/
+
+# Streamlit secrets (keep API keys and passwords private)
+.streamlit/secrets.toml
+
+# VS Code / PyCharm
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db

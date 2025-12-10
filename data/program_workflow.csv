@@ -1,0 +1,27 @@
+dept_id,program,degree,last_revision,implementation_term,peo_slo_mapped,slo_clo_mapped,peo_tools,clo_tools_performance,assessment_plan_complete,data_collection_status,self_study_status,program_review_status
+BS,BIOLOGY,BS,Spring 2024,Fall 2024,True,True,True,True,False,Fall 2025,nan,nan
+BS,BIOLOGY,MS,Fall 2017,Fall 2018,True,True,True,True,True,yes,2025-05-01 00:00:00,Summer 2025
+DPS,CHEMISTRY,BS,Spring 2025,Fall 2025,False,False,False,False,False,Fall 2026,nan,nan
+DPS,APPLIEDPHYSICS,BS,nan,Fall 2025,False,False,False,False,False,Fall 2025,nan,nan
+NFS,Nutrition & Dietetics Coordinated Program,BS,Spring 2022,Fall 2022,True,True,True,True,True,ongoing,nan,nan
+NFS,NUTRITION,MS,nan,Fall 2024,True,True,True,True,True,start in fall 2025,nan,nan
+DPE,PSYCHOLOGY,BA,Fall 2024,Revising Program after reviewer visit,False,False,False,False,False,nan,nan,nan
+DPE,EDUCATION,BS,2019,2023 (MEHE delays),True,True,True,True,True,ongoing,nan,nan
+DPE,EDUCATION,MA,2021,awaiting MEHE,False,False,False,False,False,nan,nan,nan
+CSM,Computer Science,BS,2022,2022,True,True,True,True,True,ongoing,nan,nan
+CSM,Mathematics,BS,fall 2024,under revision,False,False,False,False,False,start in fall 2025,nan,nan
+CSM,Bioinformatics,BS,2019,Fall 2019,True,True,True,True,True,yes,2025-04-01 00:00:00,nan
+CSM,Computer Science,MS,nan,nan,False,False,False,False,False,nan,nan,nan
+CSM,Computer Science,MS (online),nan,nan,False,False,False,False,False,nan,nan,nan
+CSM,MS is Data Science,MS,nan,Fall 2025,False,False,False,False,False,Fall 2026,nan,nan
+POLIS,International Affairs,MA,Spring 2024,Fall 2025,False,False,False,False,False,start in fall 2025,nan,nan
+POLIS,Political Science/IntA,BA,2021,2022,True,True,True,True,True,ongoing,Spring 2026,Fall2026
+CMI,Multimedia Journalism,BA,2015,2016,False,False,False,False,False,nan,2025-05-25 00:00:00,Summer 2025
+CMI,Communication,BA,2015,2016,False,False,False,False,False,nan,2025-05-25 00:00:00,Summer 2025
+CMI,MULTIMEDIA JOURNALISM,MA,nan,awaiting MEHE,False,False,False,False,False,nan,nan,nan
+CMI,INTERDISCIPLINARY GENDER STUDIES,MA,nan,nan,False,False,False,False,False,Fall 2025,nan,nan
+CMI,MIGRATION STUDIES,MA,nan,nan,False,False,False,False,False,Fall 2025,nan,nan
+ECA,ENGLISH,BA,2012,2012,False,False,False,False,False,Fall 2025,nan,nan
+ECA,Performing Arts,BA,Spring 2024,Fall 2024,False,False,False,False,False,Fall 2025,nan,nan
+ECA,TV Film,BA,2016,Undergoing revision,False,False,False,False,False,2025-11-01 00:00:00,nan,nan
+ECA,Translation,BA,nan,nan,False,False,False,False,False,Fall 2025,nan,nan

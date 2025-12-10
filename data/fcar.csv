@@ -1,0 +1,2 @@
+fcar_id,dept_id,course_id,term,instructor,clo_results,methods,findings,actions,evidence,status,owner,due_date
+1,ECA,ENG101,Fall 2025,TBD,"CLO1: Met 78%, CLO2: Met 70%, CLO3: Partially 62%","Exam, Portfolio, Rubric",Writing structure weak in CLO3,Add scaffolded outline activity; faculty PD on rubrics,link://drive/fcar/ENG101_Fall2025.pdf,In Review,ECA QA,2025-10-15
