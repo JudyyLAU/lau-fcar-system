@@ -2,6 +2,10 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 from pathlib import Path
+from fpdf import FPDF
+import io
+from utils import build_fcar_pdf
+
 
 # Reuse helpers from your submit page / utils
 from utils import inject_custom_css, logo, pct_to_dot,get_db,ensure_indexes
@@ -248,6 +252,7 @@ else:
         st.altair_chart(chart, use_container_width=True)
 
 # ---------- Detailed FCAR Table ----------
+
 st.subheader("Detailed FCAR Records")
 
 cols_to_show = [
@@ -266,3 +271,50 @@ cols_to_show = [
 cols_to_show = [c for c in cols_to_show if c in hdr_filtered.columns]
 
 st.dataframe(hdr_filtered[cols_to_show], use_container_width=True)
+
+# ---------- Single FCAR Detail View ----------
+st.markdown("### View Single FCAR")
+
+fcar_ids_filtered = hdr_filtered["fcar_id"].unique().tolist()
+selected_fcar_id = st.selectbox(
+    "Select an FCAR to view full details",
+    options=fcar_ids_filtered,
+)
+
+if selected_fcar_id:
+    hdr_row = headers_df[headers_df["fcar_id"] == selected_fcar_id].iloc[0]
+    pcs_for_fcar = pcs_df[pcs_df["fcar_id"] == selected_fcar_id] if not pcs_df.empty else pd.DataFrame()
+
+    st.markdown(f"#### FCAR ID: `{selected_fcar_id}`")
+
+    # Header info (all fields)
+    with st.expander("Header Information", expanded=True):
+        hdr_dict = hdr_row.drop(labels=["_id"], errors="ignore").to_dict()
+        hdr_display = pd.DataFrame(
+            [{"Field": k, "Value": v} for k, v in hdr_dict.items()]
+        )
+        st.table(hdr_display)
+
+    # Grades
+    grade_cols_present = [f"grade_{g}" for g in GRADE_LABELS if f"grade_{g}" in hdr_row.index]
+    if grade_cols_present:
+        with st.expander("Grade Distribution for this FCAR", expanded=False):
+            grade_data = {
+                "Grade": [g.replace("grade_", "") for g in grade_cols_present],
+                "Count": [hdr_row[c] for c in grade_cols_present],
+            }
+            st.table(pd.DataFrame(grade_data))
+
+    # PCs / SLOs
+    with st.expander("PC / SLO Rows for this FCAR", expanded=True):
+        if pcs_for_fcar.empty:
+            st.info("No PC/SLO rows found for this FCAR.")
+        else:
+            st.dataframe(pcs_for_fcar, use_container_width=True)
+            pdf_bytes = build_fcar_pdf(hdr_row, pcs_for_fcar)
+            st.download_button(
+                label="⬇️ Download FCAR as PDF",
+                data=pdf_bytes,
+                file_name=f"fcar_{selected_fcar_id}.pdf",
+                mime="application/pdf",
+            )
