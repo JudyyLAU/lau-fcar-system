@@ -100,7 +100,7 @@ def load_fcar_headers():
 @st.cache_data(show_spinner=False)
 def load_fcar_pcs():
     db = get_db("fcar_db")
-    if not db:
+    if db is None:
         return pd.DataFrame()
     rows = list(db.fcar_pcs.find({}))
     if not rows:

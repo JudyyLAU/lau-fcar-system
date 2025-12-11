@@ -144,7 +144,7 @@ def save_fcar_to_mongo(header_row: dict, pcs_rows: list, db_name: str = "fcar_db
     If the same fcar_id exists, it will be replaced (upsert).
     """
     db = get_db(db_name)
-    if not db:
+    if db is None:
         raise RuntimeError("No DB connection")
 
     ensure_indexes(db)
@@ -901,16 +901,7 @@ with st.form("fcar_form"):
             )
 
         pcs_df_out = pd.DataFrame(pcs_rows)
-        # If you still want the CSV dump, uncomment:
-        # if PCS_PATH.exists():
-        #     try:
-        #         old_pcs = pd.read_csv(PCS_PATH)
-        #         pcs_all = pd.concat([old_pcs, pcs_df_out], ignore_index=True)
-        #     except Exception:
-        #         pcs_all = pcs_df_out
-        # else:
-        #     pcs_all = pcs_df_out
-        # pcs_all.to_csv(PCS_PATH, index=False)
+    
 
         try:
             ok = save_fcar_to_mongo(header_row, pcs_rows, db_name="fcar_db")
