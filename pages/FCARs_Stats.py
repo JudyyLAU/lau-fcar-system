@@ -1,57 +1,6 @@
-# import streamlit as st
-# import pandas as pd
-# from pathlib import Path
-# from datetime import date
-# from utils import get_departments, get_courses, upsert_fcar,logo,add_sidebar_logo,summarize_fcar,inject_custom_css
-# inject_custom_css()
-# st.set_page_config(page_title="FCAR ", page_icon=str(logo), layout="wide")
-# # st.set_page_config(page_title="FCAR (Detailed)", page_icon="📝", layout="wide")
-# st.markdown("<h1 style='color:#046d5a;'>FCAR Stats</h1>", unsafe_allow_html=True)
-# # st.title("Faculty Course Assessment Report (FCAR) — Detailed")
-# st.caption("Page for editing and submitting new FCAR entries")
-# deps = get_departments()
-# courses = get_courses()
-# dept_ids = deps["dept_id"].tolist() if not deps.empty else []
-# course_ids = courses["course_id"].tolist() if not courses.empty else []
-# DATA_PATH = Path(__file__).parents[1] / "data" / "fcar_detail.csv"
-# DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-# # # ===== FCAR summary =====
-# summary, fcar_df = summarize_fcar()
-
-# k1, k2, k3 = st.columns(3)
-# k1.metric("Total FCAR", summary.get("total", 0))
-# status_df = summary.get("status", pd.DataFrame(columns=["status", "count"]))
-# k2.metric("Statuses", len(status_df))
-# by_dept = summary.get("by_dept", pd.DataFrame())
-# k3.metric("Active Departments", int(by_dept["dept_id"].nunique()) if not by_dept.empty else 0)
-
-# st.subheader("FCAR Status Overview")
-# if not status_df.empty:
-#     st.bar_chart(status_df.set_index("status"))
-# else:
-#     st.info("No FCAR data yet.")
-
-# st.subheader("All FCAR Table")
-# st.dataframe(fcar_df,width='stretch')
-
-# st.markdown("---")
-
-# # Quick KPIs
-# summary, df = summarize_fcar()
-# col1, col2, col3 = st.columns(3)
-# col1.metric("Total FCAR Submissions", summary.get("total", 0))
-# if "status" in summary:
-#     status_df = summary["status"]
-# else:
-#     status_df = pd.DataFrame(columns=["status","count"])
-# col2.metric("Statuses Tracked", len(status_df))
-# dept_count = summary.get("by_dept", pd.DataFrame())
-# col3.metric("Departments Active", int(dept_count["dept_id"].nunique()) if not dept_count.empty else 0)
-# st.subheader("Recent FCAR Entries")
-# st.dataframe(df, width='stretch')
 import pandas as pd
 import streamlit as st
-
+import altair as alt
 from pathlib import Path
 
 # Reuse helpers from your submit page / utils
@@ -62,7 +11,7 @@ if "user" not in st.session_state:
     st.error("You must be logged in to access this page. Please go to the Home page and log in.")
     st.stop()
 
-# Optional: show who is logged in in the sidebar
+# show who is logged in in the sidebar
 st.sidebar.markdown(f"👤 **User:** {st.session_state.get('user')} ({st.session_state.get('role')})")
 
 # ---- Page setup ----
@@ -111,13 +60,19 @@ def load_fcar_pcs():
     return df
 
 
+
+
+# Refresh button
+if st.button("🔄 Refresh"):
+    load_fcar_headers.clear()
+    load_fcar_pcs.clear()
+    st.rerun()
 headers_df = load_fcar_headers()
 pcs_df = load_fcar_pcs()
 
 if headers_df.empty:
     st.warning("No FCAR records found in MongoDB. Submit at least one FCAR first.")
-    st.stop()
-
+    st.stop()    
 # ---------- Filters ----------
 with st.sidebar:
     st.subheader("Filters")
@@ -201,7 +156,42 @@ else:
 
 st.markdown("---")
 
-# ---------- PC / SLO Performance ----------
+# # ---------- PC / SLO Performance ----------
+# st.subheader("Student Learning Outcomes / PCs")
+
+# if pcs_filtered.empty:
+#     st.info("No PC/SLO rows found for the current filter.")
+# else:
+#     # Aggregate by PC code and/or title
+#     group_cols = ["code"]
+#     if "title" in pcs_filtered.columns:
+#         group_cols.append("title")
+
+#     pcs_agg = (
+#         pcs_filtered.groupby(group_cols, dropna=False)
+#         .agg(
+#             n_fcars=("fcar_id", "nunique"),
+#             n_rows=("fcar_id", "size"),
+#             avg_pct=("pct", "mean"),
+#             avg_students=("students", "mean"),
+#         )
+#         .reset_index()
+#     )
+
+#     # Sort worst to best performance
+#     pcs_agg = pcs_agg.sort_values("avg_pct")
+
+#     st.caption("Average % Met Standard per PC code (across filtered FCARs).")
+#     st.dataframe(pcs_agg, use_container_width=True)
+
+#     # Simple bar chart for avg % met
+#     if not pcs_agg.empty:
+#         chart_df = pcs_agg.set_index("code")[["avg_pct"]]
+#         st.bar_chart(chart_df)
+
+# st.markdown("---")
+# ---------- PC / SLO Performance with different colors based on average----------
+st.markdown("---")
 st.subheader("Student Learning Outcomes / PCs")
 
 if pcs_filtered.empty:
@@ -215,10 +205,9 @@ else:
     pcs_agg = (
         pcs_filtered.groupby(group_cols, dropna=False)
         .agg(
-            n_fcars=("fcar_id", "nunique"),
-            n_rows=("fcar_id", "size"),
-            avg_pct=("pct", "mean"),
-            avg_students=("students", "mean"),
+            n_fcars=("fcar_id", "nunique"),        # how many distinct FCARs touched this PC
+            avg_pct=("pct", "mean"),              # average % met
+            avg_students=("students", "mean"),    # average number of students
         )
         .reset_index()
     )
@@ -229,12 +218,34 @@ else:
     st.caption("Average % Met Standard per PC code (across filtered FCARs).")
     st.dataframe(pcs_agg, use_container_width=True)
 
-    # Simple bar chart for avg % met
+    # -------- PC vs Average % chart with highlighting < 60% --------
     if not pcs_agg.empty:
-        chart_df = pcs_agg.set_index("code")[["avg_pct"]]
-        st.bar_chart(chart_df)
+        # Use code as the x-axis; title in tooltip if available
+        tooltip_cols = ["code", "avg_pct", "n_fcars", "avg_students"]
+        if "title" in pcs_agg.columns:
+            tooltip_cols.insert(1, "title")
 
-st.markdown("---")
+        chart = (
+            alt.Chart(pcs_agg)
+            .mark_bar()
+            .encode(
+                x=alt.X("code:N", title="PC Code"),
+                y=alt.Y("avg_pct:Q", title="Average % Met Standard"),
+                color=alt.condition(
+                    alt.datum.avg_pct < 60,
+                    alt.value("#d62728"),   # highlight: below 60%
+                    alt.value("#1ca023"),   # normal: 60% and above
+                ),
+                tooltip=tooltip_cols,
+            )
+            .properties(
+                width="container",
+                height=400,
+                title="PC vs Average % Met Standard (highlighting < 60%)",
+            )
+        )
+
+        st.altair_chart(chart, use_container_width=True)
 
 # ---------- Detailed FCAR Table ----------
 st.subheader("Detailed FCAR Records")
