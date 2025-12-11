@@ -3,6 +3,9 @@ import pandas as pd
 import streamlit as st
 import os 
 from pathlib import Path
+from fpdf import FPDF
+import io
+
 DATA_DIR = Path(__file__).parent / "data"
 logo = Path(__file__).parent / "data" / "lau-logo.jpg"
 # add a logo
@@ -234,3 +237,66 @@ def ensure_indexes(db):
         [("course_code_title", "text"), ("instructor_name", "text")],
         name="hdr_text_idx",
     )
+
+def build_fcar_pdf(hdr_row: pd.Series, pcs_for_fcar: pd.DataFrame) -> bytes:
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, "Faculty Course Assessment Report (FCAR)", ln=1)
+
+    # Basic identifiers
+    pdf.set_font("Arial", "", 12)
+    for label in ["fcar_id", "dept_id", "course_code_title", "term", "instructor_name"]:
+        if label in hdr_row.index:
+            pdf.cell(0, 8, f"{label.replace('_', ' ').title()}: {hdr_row[label]}", ln=1)
+
+    pdf.ln(4)
+
+    # Header fields (all)
+    pdf.set_font("Arial", "B", 13)
+    pdf.cell(0, 8, "Header Fields", ln=1)
+    pdf.set_font("Arial", "", 11)
+
+    hdr_dict = hdr_row.drop(labels=["_id"], errors="ignore").to_dict()
+    for k, v in hdr_dict.items():
+        text = f"{k}: {v}"
+        pdf.multi_cell(0, 6, text)
+
+    pdf.ln(4)
+
+    # Grade distribution
+    grade_cols_present = [c for c in hdr_row.index if c.startswith("grade_")]
+    if grade_cols_present:
+        pdf.set_font("Arial", "B", 13)
+        pdf.cell(0, 8, "Grade Distribution", ln=1)
+        pdf.set_font("Arial", "", 11)
+        for c in grade_cols_present:
+            grade_label = c.replace("grade_", "")
+            pdf.cell(0, 6, f"{grade_label}: {hdr_row[c]}", ln=1)
+        pdf.ln(4)
+
+    # PC / SLO table
+    if not pcs_for_fcar.empty:
+        pdf.set_font("Arial", "B", 13)
+        pdf.cell(0, 8, "PC / SLO Rows", ln=1)
+        pdf.set_font("Arial", "", 10)
+
+        # Limit columns for readability (adjust as needed)
+        pc_cols = [c for c in pcs_for_fcar.columns if c not in ["_id", "fcar_id"]]
+        for _, row in pcs_for_fcar[pc_cols].iterrows():
+            line_parts = []
+            if "code" in row.index:
+                line_parts.append(f"PC {row['code']}")
+            if "title" in row.index:
+                line_parts.append(f"- {row['title']}")
+            if "pct" in row.index:
+                line_parts.append(f"({row['pct']}%)")
+            line = " ".join(str(p) for p in line_parts if pd.notna(p) and p != "")
+            pdf.multi_cell(0, 5, line)
+        pdf.ln(4)
+
+    # Return as bytes
+    pdf_bytes = pdf.output(dest="S").encode("latin-1")
+    return pdf_bytes
