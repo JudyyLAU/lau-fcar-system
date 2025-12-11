@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 from pathlib import Path
-from fpdf import FPDF
+# from fpdf import FPDF
 import io
 from utils import build_fcar_pdf
 
@@ -311,10 +311,10 @@ if selected_fcar_id:
             st.info("No PC/SLO rows found for this FCAR.")
         else:
             st.dataframe(pcs_for_fcar, use_container_width=True)
-            pdf_bytes = build_fcar_pdf(hdr_row, pcs_for_fcar)
-            st.download_button(
-                label="⬇️ Download FCAR as PDF",
-                data=pdf_bytes,
-                file_name=f"fcar_{selected_fcar_id}.pdf",
-                mime="application/pdf",
-            )
+            # pdf_bytes = build_fcar_pdf(hdr_row, pcs_for_fcar)
+            # st.download_button(
+            #     label="⬇️ Download FCAR as PDF",
+            #     data=pdf_bytes,
+            #     file_name=f"fcar_{selected_fcar_id}.pdf",
+            #     mime="application/pdf",
+            # )
